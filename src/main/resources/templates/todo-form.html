@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${mode == 'create' ? 'Create Todo' : 'Edit Todo'}">Todo Form</title>
+</head>
+<body>
+  <h1 th:text="${mode == 'create' ? 'Create Todo' : 'Edit Todo'}">Todo Form</h1>
+
+  <form th:action="${mode == 'create' ? '/todos' : '/todos/' + todoId}" method="post" th:object="${todoForm}">
+    <div>
+      <label>Title</label><br/>
+      <input type="text" th:field="*{title}" />
+      <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <label>Description</label><br/>
+      <textarea th:field="*{description}" rows="4" cols="50"></textarea>
+      <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <label>
+        <input type="checkbox" th:field="*{completed}" />
+        Completed
+      </label>
+    </div>
+
+    <div style="margin-top:10px;">
+      <button type="submit" th:text="${mode == 'create' ? 'Create' : 'Update'}">Save</button>
+      <a href="/todos">Cancel</a>
+    </div>
+  </form>
+</body>
+</html>
