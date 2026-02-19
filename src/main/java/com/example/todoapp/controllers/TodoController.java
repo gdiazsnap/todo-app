@@ -3,12 +3,15 @@ package com.example.todoapp.controllers;
 import com.example.todoapp.dtos.TodoFormDto;
 import com.example.todoapp.entities.Todo;
 import com.example.todoapp.services.TodoService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/todos")
@@ -20,9 +23,10 @@ public class TodoController {
         this.todoService = todoService;
     }
 
+
     @GetMapping
-    public String list(Model model, @ModelAttribute("message") String message) {
-        model.addAttribute("todos", todoService.findAll());
+    public String list(Model model, @ModelAttribute("message") String message, HttpSession session) {
+        model.addAttribute("todos", todoService.findAll(getCurrentUserId(session)));
         return "todos";
     }
 
@@ -37,13 +41,14 @@ public class TodoController {
     public String create(@Valid @ModelAttribute("todoForm") TodoFormDto form,
                          BindingResult bindingResult,
                          RedirectAttributes redirectAttributes,
-                         Model model) {
+                         Model model,
+                         HttpSession session) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("mode", "create");
             return "todo-form";
         }
 
-        todoService.create(form);
+        todoService.create(form, getCurrentUserId(session));
         redirectAttributes.addFlashAttribute("message", "Todo created successfully.");
         return "redirect:/todos";
     }
@@ -68,29 +73,41 @@ public class TodoController {
                          @Valid @ModelAttribute("todoForm") TodoFormDto form,
                          BindingResult bindingResult,
                          RedirectAttributes redirectAttributes,
-                         Model model) {
+                         Model model,
+                         HttpSession session) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("todoId", id);
             model.addAttribute("mode", "edit");
             return "todo-form";
         }
 
-        todoService.update(id, form);
+        todoService.update(id, form, getCurrentUserId(session));
         redirectAttributes.addFlashAttribute("message", "Todo updated successfully.");
         return "redirect:/todos";
     }
 
     @PostMapping("/{id}/toggle")
-    public String toggle(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        todoService.toggleCompleted(id);
+    public String toggle(@PathVariable Long id, RedirectAttributes redirectAttributes, HttpSession session) {
+        todoService.toggleCompleted(id, getCurrentUserId(session));
         redirectAttributes.addFlashAttribute("message", "Todo completion toggled.");
         return "redirect:/todos";
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        todoService.delete(id);
+    public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes, HttpSession session) {
+        todoService.delete(id, getCurrentUserId(session));
         redirectAttributes.addFlashAttribute("message", "Todo deleted successfully.");
         return "redirect:/todos";
+    }
+
+    private UUID getCurrentUserId(HttpSession session) {
+        Object userObj = session.getAttribute("currentUser");
+        if (userObj instanceof UUID userId) {
+            return userId;
+        }
+        if (userObj instanceof String userIdStr) {
+            return UUID.fromString(userIdStr);
+        }
+        throw new IllegalStateException("No current user in session");
     }
 }

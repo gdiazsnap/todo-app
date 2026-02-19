@@ -1,36 +1,88 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title th:text="${mode == 'create' ? 'Create Todo' : 'Edit Todo'}">Todo Form</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${mode == 'create' ? 'Create Todo' : 'Edit Todo'}">Todo Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
-  <h1 th:text="${mode == 'create' ? 'Create Todo' : 'Edit Todo'}">Todo Form</h1>
-
-  <form th:action="${mode == 'create' ? '/todos' : '/todos/' + todoId}" method="post" th:object="${todoForm}">
-    <div>
-      <label>Title</label><br/>
-      <input type="text" th:field="*{title}" />
-      <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+<body class="bg-gray-50 min-h-screen py-8">
+<div class="max-w-2xl mx-auto px-4">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 th:text="${mode == 'create' ? 'Create Todo' : 'Edit Todo'}"
+            class="text-3xl font-bold text-gray-800">
+            Todo Form
+        </h1>
     </div>
 
-    <div style="margin-top:10px;">
-      <label>Description</label><br/>
-      <textarea th:field="*{description}" rows="4" cols="50"></textarea>
-      <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
-    </div>
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form th:action="${mode == 'create' ? '/todos' : '/todos/' + todoId}" method="post" th:object="${todoForm}"
+              class="space-y-6">
 
-    <div style="margin-top:10px;">
-      <label>
-        <input type="checkbox" th:field="*{completed}" />
-        Completed
-      </label>
-    </div>
+            <!-- Title Field -->
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                    Title <span class="text-red-500">*</span>
+                </label>
+                <input
+                        type="text"
+                        id="title"
+                        th:field="*{title}"
+                        th:classappend="${#fields.hasErrors('title')} ? 'border-red-500' : 'border-gray-300'"
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        placeholder="Enter todo title"
+                />
+                <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                   class="mt-2 text-sm text-red-600"></p>
+            </div>
 
-    <div style="margin-top:10px;">
-      <button type="submit" th:text="${mode == 'create' ? 'Create' : 'Update'}">Save</button>
-      <a href="/todos">Cancel</a>
+            <!-- Description Field -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea
+                        id="description"
+                        th:field="*{description}"
+                        rows="4"
+                        th:classappend="${#fields.hasErrors('description')} ? 'border-red-500' : 'border-gray-300'"
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        placeholder="Enter todo description (optional)"
+                ></textarea>
+                <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+                   class="mt-2 text-sm text-red-600"></p>
+            </div>
+
+            <!-- Completed Checkbox -->
+            <div class="flex items-center">
+                <input
+                        type="checkbox"
+                        id="completed"
+                        th:field="*{completed}"
+                        class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <label for="completed" class="ml-3 text-sm font-medium text-gray-700">
+                    Mark as completed
+                </label>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="/todos"
+                   class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-lg transition duration-200">
+                    Cancel
+                </a>
+                <button
+                        type="submit"
+                        th:text="${mode == 'create' ? 'Create Todo' : 'Update Todo'}"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                    Save
+                </button>
+            </div>
+        </form>
     </div>
-  </form>
+</div>
 </body>
 </html>
